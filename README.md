@@ -9,9 +9,14 @@ nvm use v20.10.0
 python3 -m http.server
 ```
 
+Se as alterações feitas não forem notáveis, é só mudar a porta
+
 
 # Notes
-    - Apresentação intermédia
+    - Meter um fundo bonito
+        - Meter a janela bonita e multiplicá-la
+        - Fazer os quadros
+        - Meter o Candeeiro no sítio e torná-lo a fonte de luz
     - "Vidas do chef"
     - Adicionar a família feliz
     - Fazer a contagem da pontuação

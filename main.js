@@ -22,170 +22,211 @@ init();
 
 async function init() {
 
-  // Scene
-	scene = new THREE.Scene();
+    // Scene
+    scene = new THREE.Scene();
 
-  // Camera
-	camera = new THREE.PerspectiveCamera(
-		75,
-		window.innerWidth / window.innerHeight,
-		0.1,
-		1000
-	);
-	camera.position.z = -10;
-	// camera.position.z = 0;
-	camera.position.y = 20;
-  
-	// rotate camera to see the scene from the top
-	camera.rotation.x = -Math.PI / 2;
+    // Camera
+    camera = new THREE.PerspectiveCamera(
+        90,
+        window.innerWidth / window.innerHeight,
+        1,
+        1000
+    );
+    // rotate camera to see the scene from the top
+    camera.rotation.x = -Math.PI / 2;
 
-	const ambient = new THREE.HemisphereLight(0xffffbb, 0x080820);
-	ambient.position.set(0, 5, 0);
-	scene.add(ambient);
-  
-	clock = new THREE.Clock();
+    const ambient = new THREE.HemisphereLight(0xffffbb, 0x080820);
+    ambient.position.set(0, 5, 0);
+    scene.add(ambient);
 
-  // render
-	renderer = new THREE.WebGLRenderer({ antialias: true });
-	renderer.setPixelRatio(window.devicePixelRatio);
-	renderer.setSize(window.innerWidth, window.innerHeight);
-	renderer.shadowMap.enabled = true;
-	renderer.outputEncoding = THREE.sRGBEncoding;
+    clock = new THREE.Clock();
 
+    // Render
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+	renderer.setClearColor(0xf6d7b6); 
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
+    renderer.outputEncoding = THREE.sRGBEncoding;
 
-	// axesHelper = new THREE.AxesHelper( 100 );
-	// scene.add( axesHelper );
-
-	elThreejs.appendChild(renderer.domElement);
-
-	await loadKaren();
-
-	addPlayer();
-	addPlane();
-	addProjectile();
+    elThreejs.appendChild(renderer.domElement);
 
 
-	addKeysListener();
-	animate();
+    await loadKaren();
 
-	spawnKarens();
+	addDoor();
+	addWindow();
+	addPainting();
+	addLamp();
+
+    addPlayer();
+    addPlane();
+    addProjectile();
+
+    addKeysListener();
+    animate();
+
+    spawnKarens();
 
 }
 
 function animate(){
 
-	movePlayer();
-	updateProjectiles();
-	updateKarens();
+    movePlayer();
+    updateProjectiles();
+    updateKarens();
 
+    checkCollisions();
 
-	// collision detection between projectileMeshes and animalMeshes
-	checkCollisions();
+    renderer.render(scene, camera);
+    requestAnimationFrame(animate);
 
-	renderer.render(scene, camera);
-	requestAnimationFrame(animate);
-
-	const dt = clock.getDelta();
-	for ( const mixer of mixers ) mixer.update( dt );
+    const dt = clock.getDelta();
+    for ( const mixer of mixers ) mixer.update( dt );
 }
+
+function addDoor() {
+    // Moldura da porta
+    const doorFrameGeometry = new THREE.BoxGeometry(10, 10, 0.2);
+    const doorFrameMaterial = new THREE.MeshBasicMaterial({ color: 0x804000 }); // Marrom escuro
+    const doorFrame = new THREE.Mesh(doorFrameGeometry, doorFrameMaterial);
+    doorFrame.position.set(0, 0, -90);
+    scene.add(doorFrame);
+	// Puxador esquerdo
+    const handleGeometry = new THREE.CylinderGeometry(0.5, 0.5, 3, 32);
+    const handleMaterial = new THREE.MeshBasicMaterial({ color: 0xA9A9A9 }); // Cinza escuro
+    const handleLeft = new THREE.Mesh(handleGeometry, handleMaterial);
+    handleLeft.position.set(-1, 0, -90);
+    scene.add(handleLeft);
+
+    // Puxador direito
+    const handleRight = new THREE.Mesh(handleGeometry, handleMaterial);
+    handleRight.position.set(1, 0, -90);
+    scene.add(handleRight);
+}
+
+
+function addWindow() {
+    // Vidro da janela
+    const glassGeometry = new THREE.PlaneGeometry(4, 8);
+    const glassMaterial = new THREE.MeshBasicMaterial({ color: 0xADD8E6, transparent: true, opacity: 0.5 }); // Azul claro, transparente
+    const glass = new THREE.Mesh(glassGeometry, glassMaterial);
+    glass.position.set(30, 5, 0); // Posição na parede direita
+	glass.rotation.z = Math.PI/2 -0.1;
+    scene.add(glass);
+
+    // // Moldura da janela
+    // const frameGeometry = new THREE.BoxGeometry(5, 10, 0.2);
+    // const frameMaterial = new THREE.MeshBasicMaterial({ color: 0x804000 }); // Marrom escuro
+    // const frame = new THREE.Mesh(frameGeometry, frameMaterial);
+    // frame.position.set(15, 0, 0); // Posição na parede direita
+    // scene.add(frame);
+}
+
+function addPainting() {
+    // Tela do quadro
+    const paintingGeometry = new THREE.PlaneGeometry(4, 2);
+    const paintingMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFFE0 }); // Amarelo claro
+    const painting = new THREE.Mesh(paintingGeometry, paintingMaterial);
+    painting.position.set(-15, 10, 0); // Posição na parede esquerda
+    scene.add(painting);
+
+    // Moldura do quadro
+    const frameGeometry = new THREE.BoxGeometry(5, 3, 0.2);
+    const frameMaterial = new THREE.MeshBasicMaterial({ color: 0x8B4513 }); // Marrom
+    const frame = new THREE.Mesh(frameGeometry, frameMaterial);
+    frame.position.set(-15, 10, 0); // Posição na parede esquerda
+    scene.add(frame);
+}
+
+function addLamp() {
+    // Suporte do candeeiro
+    const standGeometry = new THREE.CylinderGeometry(0.5, 0.5, 8, 32);
+    const standMaterial = new THREE.MeshBasicMaterial({ color: 0x808080 }); // Cinza
+    const stand = new THREE.Mesh(standGeometry, standMaterial);
+    stand.position.set(0, 4, -100); // Posição ao lado da porta
+    scene.add(stand);
+
+    // Lâmpada do candeeiro
+    const bulbGeometry = new THREE.SphereGeometry(1, 32, 32);
+    const bulbMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFF00 }); // Amarelo
+    const bulb = new THREE.Mesh(bulbGeometry, bulbMaterial);
+    bulb.position.set(0, 10, -100); // Posição ao lado da porta
+    scene.add(bulb);
+}
+
+
 
 async function addPlayer(){
-	const gltfLoader = new GLTFLoader().setPath( 'chef/' );
-	const playerGLTF = await gltfLoader.loadAsync( 'scene.gltf' );
-	playerMesh = playerGLTF.scene.children[0];
-	// playerMesh.position.set(0, 0, 0); // default
+    const gltfLoader = new GLTFLoader().setPath( 'chef/' );
+    const playerGLTF = await gltfLoader.loadAsync( 'scene.gltf' );
+    playerMesh = playerGLTF.scene.children[0];
     playerMesh.rotation.z = Math.PI;
-	playerMesh.scale.set(0.75,0.75,0.75)
-	scene.add(playerMesh);
-}
+    playerMesh.scale.set(0.75, 0.75, 0.75);
+    playerMesh.position.set(0, 0, 15);
+    scene.add(playerMesh);
 
+    camera.position.set(playerMesh.position.x, playerMesh.position.y + 5, playerMesh.position.z + 10);
+    camera.lookAt(playerMesh.position);
+}
 
 function addPlane(){
-	const texture = new THREE.TextureLoader().load( "floor/brownFloor.png" );
-	let geometry =  new THREE.BoxGeometry(60, 0, 35);
-	let material = new THREE.MeshBasicMaterial({map: texture, color: 0x333333});
-	let plane = new THREE.Mesh(geometry, material);
-	plane.position.set(0, 0, -10);
-	scene.add(plane);
-  }
-
+    const texture = new THREE.TextureLoader().load( "floor/brownFloor.png" );
+    const geometry = new THREE.BoxGeometry(200, 0, 300);
+    const material = new THREE.MeshBasicMaterial({ map: texture, color: 0x333333 });
+    const plane = new THREE.Mesh(geometry, material);
+    plane.position.set(0, -10, 0);
+    scene.add(plane);
+}
 
 function addKeysListener(){
-	window.addEventListener('keydown', function(event){
-	  keyboard[event.keyCode] = true;
-	} , false);
-	window.addEventListener('keyup', function(event){
-	  keyboard[event.keyCode] = false;
-	} , false);
+    window.addEventListener('keydown', function(event){
+        keyboard[event.keyCode] = true;
+    }, false);
+    window.addEventListener('keyup', function(event){
+        keyboard[event.keyCode] = false;
+    }, false);
 
-	window.addEventListener("keyup", (event) => {
-		// boiler plate code to prevent side effects
-		if (event.isComposing || event.keyCode === 229) {
-		  return;
-		}
-	
-		// space bar 
-		if (event.keyCode == 32) {
-		  let projectileMeshClone = projectileMesh.clone();
-		  projectileMeshClone.position.x = playerMesh.position.x +3;
-		  projectileMeshClone.position.y = playerMesh.position.y;
-		  projectileMeshClone.position.z = playerMesh.position.z;
-		  scene.add(projectileMeshClone);
-		  projectileMeshes.push(projectileMeshClone);
-		}
-	  });
+    window.addEventListener("keyup", (event) => {
+        if (event.isComposing || event.keyCode === 229) {
+            return;
+        }
+
+        if (event.keyCode == 32) {
+            let projectileMeshClone = projectileMesh.clone();
+            projectileMeshClone.position.x = playerMesh.position.x +3;
+            projectileMeshClone.position.y = playerMesh.position.y;
+            projectileMeshClone.position.z = playerMesh.position.z;
+            scene.add(projectileMeshClone);
+            projectileMeshes.push(projectileMeshClone);
+        }
+    });
 }
-
-
 
 function movePlayer(){
-	// left letter A
-	if(keyboard[65] && playerMesh.position.x > -25) playerMesh.position.x -= 0.25;
-	// right letter D
-	if(keyboard[68] && playerMesh.position.x < 20) playerMesh.position.x += 0.25;
+    if(keyboard[65] && playerMesh.position.x > -20) playerMesh.position.x -= 0.25;
+    if(keyboard[68] && playerMesh.position.x < 20) playerMesh.position.x += 0.25;
 }
-
 
 async function addProjectile(){
-	const gltfLoader = new GLTFLoader().setPath( 'rollingPin/' );
-	const projectileGLTF = await gltfLoader.loadAsync( 'scene.gltf' );
-	projectileMesh = projectileGLTF.scene;
-	projectileMesh.scale.set(0.3, 0.3, 0.3);
-}
-
-function updateProjectiles(){
-	projectileMeshes.forEach((projectile, index) => {
-		projectile.position.z -= 0.5;
-		if(projectile.position.z < -20){
-			scene.remove(projectile);
-			projectileMeshes.splice(index, 1);
-		  }
-	});
+    const gltfLoader = new GLTFLoader().setPath( 'rollingPin/' );
+    const projectileGLTF = await gltfLoader.loadAsync( 'scene.gltf' );
+    projectileMesh = projectileGLTF.scene;
+    projectileMesh.scale.set(0.3, 0.3, 0.3);
 }
 
 async function loadKaren(){
-	const gltfLoader = new GLTFLoader();
+    const gltfLoader = new GLTFLoader();
     
-    // Carregar o modelo 3D da mulher
     womanGLTF = await gltfLoader.loadAsync('karen/female_cartoon_character/scene.gltf');
-    
-    // Carregar o modelo 3D do cabelo
     const hairGLTF = await gltfLoader.loadAsync('karen/female_karen_hair/scene.gltf');
     
-    // Adicionar o modelo da mulher à cena
     const karenMesh = womanGLTF.scene;
     karenMesh.scale.set(2, 2, 2);
-    // scene.add(karenMesh);
-
-    // // Adicionar o modelo do cabelo como filho do modelo da mulher
-    // const hairModel = hairGLTF.scene;
-    // hairModel.scale.set(10, 10, 10);
-    // womanModel.add(hairModel);
 }
 
-
 function addKaren(posX){
-	let model1 = SkeletonUtils.clone(womanGLTF.scene);
+    let model1 = SkeletonUtils.clone(womanGLTF.scene);
 
     let animations = {};
     womanGLTF.animations.forEach(animation => {
@@ -193,7 +234,7 @@ function addKaren(posX){
     });
 
     const mixer1 = new THREE.AnimationMixer(model1);
-    const actualAnimation = animations["mixamorig_KarenAnimation"]; // Verifique o nome da animação no seu arquivo GLTF
+    const actualAnimation = animations["mixamorig_KarenAnimation"];
     if (actualAnimation) {
         mixer1.clipAction(actualAnimation).play();
     } else {
@@ -210,37 +251,46 @@ function addKaren(posX){
 }
 
 function spawnKarens(){
-	// random number between -20 and 20
-	let randomX = Math.floor(Math.random() * 20) - 10;
-	addKaren(randomX);
-	setInterval(() => {
-		randomX = Math.floor(Math.random() * 20) - 10;
-		addKaren(randomX);
-	}, 2000);
-  }
-  
+    let randomX = Math.floor(Math.random() * 20) - 10;
+    addKaren(randomX);
+    setInterval(() => {
+        randomX = Math.floor(Math.random() * 20) - 10;
+        addKaren(randomX);
+    }, 2000);
+}
+
 function updateKarens(){
-	karenMeshes.forEach((karen, index) => {
-		karen.position.z += 0.1;
-		if(karen.position.z > 0){
-		  scene.remove(karen);
-		  karenMeshes.splice(index, 1);
-		}
-	});
+    karenMeshes.forEach((karen, index) => {
+        karen.position.z += 0.1;
+        if(karen.position.z > 20){
+            scene.remove(karen);
+            karenMeshes.splice(index, 1);
+        }
+    });
 }
   
+function updateProjectiles(){
+    projectileMeshes.forEach((projectile, index) => {
+        projectile.position.z -= 0.5;
+        if(projectile.position.z < -20){
+            scene.remove(projectile);
+            projectileMeshes.splice(index, 1);
+        }
+    });
+}
+
 function checkCollisions(){
-	karenMeshes.forEach((karen, indexa) => {
-		projectileMeshes.forEach((projectile, indexb) => {
-			if( karen.position.x >= projectile.position.x - 2 &&
-				karen.position.x <= projectile.position.x + 2 &&
-				karen.position.z >= projectile.position.z - 2 &&
-				karen.position.z <= projectile.position.z + 2){
-					scene.remove(karen);
-					karenMeshes.splice(indexa, 1);
-					scene.remove(projectile);
-					projectileMeshes.splice(indexb, 1);
-			}
-		});
-	});
+    karenMeshes.forEach((karen, indexa) => {
+        projectileMeshes.forEach((projectile, indexb) => {
+            if( karen.position.x >= projectile.position.x - 2 &&
+                karen.position.x <= projectile.position.x + 2 &&
+                karen.position.z >= projectile.position.z - 2 &&
+                karen.position.z <= projectile.position.z + 2){
+                    scene.remove(karen);
+                    karenMeshes.splice(indexa, 1);
+                    scene.remove(projectile);
+                    projectileMeshes.splice(indexb, 1);
+            }
+        });
+    });
 }
