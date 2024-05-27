@@ -13,12 +13,8 @@ Se as alterações feitas não forem notáveis, é só mudar a porta
 
 
 # Notes
-    - Meter um fundo bonito
-        - Meter a janela bonita e multiplicá-la (a janela está torta)
-        - Fazer os quadros (ver como iluminar o quadro)
-        - Meter o Candeeiro no sítio e torná-lo a fonte de luz (feito)
-    - "Vidas do chef"
-    - Adicionar a família feliz
-    - Fazer a contagem da pontuação
+    - Endireitar a mesa
+    - Dar deploy
+    - Fazer apresentação
     
 

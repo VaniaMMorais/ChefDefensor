@@ -15,8 +15,13 @@ let projectileMesh;
 let karenMeshes = [];
 let karenMesh;
 
+let mabelMeshes = [];
+let mabelMesh;
+let mabelGLTF;
+
 let womanGLTF;
 let mixers = [];
+let mixersMabel = [];
 let clock;
 
 let score = 0;
@@ -25,8 +30,7 @@ let lives = 3;
 const scoreElement = document.getElementById("score");
 const livesElement = document.getElementById("lives");
 
-let spawnInterval = 1000; // Intervalo inicial de spawn
-let spawnKarenIntervalId; // Armazena o ID do intervalo para ajuste posterior
+let spawnInterval = 2000; // Intervalo inicial de spawn
 
 init();
 
@@ -58,12 +62,14 @@ async function init() {
     elThreejs.appendChild(renderer.domElement);
 
     await loadKaren();
+    await loadMabel();
 
     addEdges();
     addDoor();
     addWindow();
     addPainting();
     addLamp();
+    addTableAndChairs();
 
     addPlayer();
     addPlane();
@@ -73,12 +79,14 @@ async function init() {
     animate();
 
     spawnKarens();
+    spawnMabels();
 }
 
 function animate() {
     movePlayer();
     updateProjectiles();
     updateKarens();
+    updateMabels();
 
     checkCollisions();
 
@@ -112,6 +120,93 @@ function addDoor() {
     scene.add(handleRight);
 }
 
+function addTableAndChairs() {
+    // Adiciona a mesa
+    const tableTopGeometry = new THREE.BoxGeometry(10, 0.5, 5); // Largura, altura, profundidade do tampo
+    const tableLegGeometry = new THREE.CylinderGeometry(0.25, 0.25, 4, 32); // Geometria das pernas da mesa
+    const tableMaterial = new THREE.MeshPhongMaterial({ color: 0x8B4513 }); // Cor de madeira
+
+    // Tampo da mesa
+    const tableTop = new THREE.Mesh(tableTopGeometry, tableMaterial);
+    tableTop.position.set(-30, 2, -10); // Posição do tampo da mesa
+    tableTop.castShadow = true;
+    tableTop.receiveShadow = true;
+    scene.add(tableTop);
+
+    // Pernas da mesa
+    const tableLegPositions = [
+        [-35, 0, -12.5], [-25, 0, -12.5],
+        [-35, 0, -7.8], [-25, 0, -7.5]
+    ];
+    tableLegPositions.forEach(pos => {
+        const leg = new THREE.Mesh(tableLegGeometry, tableMaterial);
+        leg.position.set(pos[0], pos[1], pos[2]);
+        leg.castShadow = true;
+        leg.receiveShadow = true;
+        scene.add(leg);
+    });
+
+    // Adiciona a primeira cadeira
+    const chairSeatGeometry = new THREE.BoxGeometry(2, 0.5, 2); // Geometria do assento
+    const chairLegGeometry = new THREE.CylinderGeometry(0.125, 0.125, 2, 32); // Geometria das pernas da cadeira
+    const chairBackGeometry = new THREE.BoxGeometry(2, 2, 0.5); // Geometria do encosto
+
+    // Assento da primeira cadeira
+    const chair1Seat = new THREE.Mesh(chairSeatGeometry, tableMaterial);
+    chair1Seat.position.set(-35, 1.25, -12.5); // Posição do assento
+    chair1Seat.castShadow = true;
+    chair1Seat.receiveShadow = true;
+    scene.add(chair1Seat);
+
+    // Pernas da primeira cadeira
+    const chair1LegPositions = [
+        [-36, 0, -13.5], [-34, 0, -13.5],
+        [-36, 0, -11.5], [-34, 0, -11.5]
+    ];
+    chair1LegPositions.forEach(pos => {
+        const leg = new THREE.Mesh(chairLegGeometry, tableMaterial);
+        leg.position.set(pos[0], pos[1], pos[2]);
+        leg.castShadow = true;
+        leg.receiveShadow = true;
+        scene.add(leg);
+    });
+
+    // Encosto da primeira cadeira
+    const chair1Back = new THREE.Mesh(chairBackGeometry, tableMaterial);
+    chair1Back.position.set(-35, 2.5, -11.25); // Posição do encosto
+    chair1Back.castShadow = true;
+    chair1Back.receiveShadow = true;
+    scene.add(chair1Back);
+
+    // Assento da segunda cadeira
+    const chair2Seat = new THREE.Mesh(chairSeatGeometry, tableMaterial);
+    chair2Seat.position.set(-25, 1.25, -12.5); // Posição do assento
+    chair2Seat.castShadow = true;
+    chair2Seat.receiveShadow = true;
+    scene.add(chair2Seat);
+
+    // Pernas da segunda cadeira
+    const chair2LegPositions = [
+        [-26, 0, -13.5], [-24, 0, -13.5],
+        [-26, 0, -11.5], [-24, 0, -11.5]
+    ];
+    chair2LegPositions.forEach(pos => {
+        const leg = new THREE.Mesh(chairLegGeometry, tableMaterial);
+        leg.position.set(pos[0], pos[1], pos[2]);
+        leg.castShadow = true;
+        leg.receiveShadow = true;
+        scene.add(leg);
+    });
+
+    // Encosto da segunda cadeira
+    const chair2Back = new THREE.Mesh(chairBackGeometry, tableMaterial);
+    chair2Back.position.set(-25, 2.5, -11.25); // Posição do encosto
+    chair2Back.castShadow = true;
+    chair2Back.receiveShadow = true;
+    scene.add(chair2Back);
+}
+
+
 function addEdges() {
     const edge1Geometry = new THREE.BoxGeometry(20, 0.1, 0.2);
     const edge1Material = new THREE.MeshBasicMaterial({ color: 0x727272 });
@@ -124,8 +219,8 @@ function addEdges() {
     const edge2Geometry = new THREE.BoxGeometry(20, 0.1, 0.2);
     const edge2Material = new THREE.MeshBasicMaterial({ color: 0x727272 });
     const edge2 = new THREE.Mesh(edge2Geometry, edge2Material);
-    edge2.position.set(65, 5, -90); // Posição igual à do vidro
-    edge2.rotation.z = Math.PI / 2 + 0.2; // Mesma rotação do vidro
+    edge2.position.set(65, 5, -90);
+    edge2.rotation.z = Math.PI / 2 + 0.2;
     edge2.castShadow = true;
     scene.add(edge2);
 
@@ -144,36 +239,36 @@ function addWindow() {
     const glassMaterial = new THREE.MeshBasicMaterial({ color: 0xADD8E6, transparent: true, opacity: 0.5 }); // Azul claro, transparente
     const glass = new THREE.Mesh(glassGeometry, glassMaterial);
     glass.position.set(30, 5, 0); // Posição na parede direita
-    glass.rotation.z = Math.PI / 2 - 0.1;
+    glass.rotation.z = Math.PI / 2 + 0.05;
     scene.add(glass);
 
     const frame3Geometry = new THREE.BoxGeometry(8, 0.5, 0.2);
-    const frame3Material = new THREE.MeshBasicMaterial({ color: 0x804000 }); // Marrom escuro
+    const frame3Material = new THREE.MeshBasicMaterial({ color: 0x804000 });
     const frame3 = new THREE.Mesh(frame3Geometry, frame3Material);
     frame3.position.set(30, 7, 0);
     frame3.rotation.y = Math.PI;
-    frame3.rotation.z = Math.PI + 0.1;
+    frame3.rotation.z = Math.PI + 0.05;
     scene.add(frame3);
 
     const frame4Geometry = new THREE.BoxGeometry(8, 0.5, 0.2);
-    const frame4Material = new THREE.MeshBasicMaterial({ color: 0x804000 }); // Marrom escuro
+    const frame4Material = new THREE.MeshBasicMaterial({ color: 0x804000 });
     const frame4 = new THREE.Mesh(frame4Geometry, frame4Material);
     frame4.position.set(30, 3, 0);
     frame4.rotation.y = Math.PI;
-    frame4.rotation.z = Math.PI + 0.1;
+    frame4.rotation.z = Math.PI + 0.05;
     scene.add(frame4);
 
     const frame5Geometry = new THREE.BoxGeometry(4.5, 0.5, 0.2);
-    const frame5Material = new THREE.MeshBasicMaterial({ color: 0x804000 }); // Marrom escuro
+    const frame5Material = new THREE.MeshBasicMaterial({ color: 0x804000 });
     const frame5 = new THREE.Mesh(frame5Geometry, frame5Material);
-    frame5.position.set(34, 4.6, 0);
+    frame5.position.set(34, 4.8, 0);
     frame5.rotation.z = glass.rotation.z;
     scene.add(frame5);
 
     const frame6Geometry = new THREE.BoxGeometry(4.5, 0.5, 0.2);
-    const frame6Material = new THREE.MeshBasicMaterial({ color: 0x804000 }); // Marrom escuro
+    const frame6Material = new THREE.MeshBasicMaterial({ color: 0x804000 });
     const frame6 = new THREE.Mesh(frame6Geometry, frame6Material);
-    frame6.position.set(26, 5.4, 0);
+    frame6.position.set(26, 5.2, 0);
     frame6.rotation.z = glass.rotation.z;
     scene.add(frame6);
 }
@@ -182,17 +277,16 @@ function addPainting() {
     // Carregar a textura da imagem
     const loader = new THREE.TextureLoader();
     loader.load('/painting.png', function(texture) {
-        // Certificar que a textura não está sendo afetada por outras configurações
+        // Certificar que a textura não está a ser afetada por outras configurações
         texture.encoding = THREE.sRGBEncoding;
         texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
 
-        // Tela do quadro com a imagem
         const paintingGeometry = new THREE.PlaneGeometry(4, 2);
         const paintingMaterial = new THREE.MeshPhongMaterial({ map: texture }); // Aplicar a textura da imagem
         const painting = new THREE.Mesh(paintingGeometry, paintingMaterial);
         painting.position.set(-30, 7, 0); // Posição na parede esquerda
         painting.castShadow = true;
-        painting.receiveShadow = true; // Certificar que a pintura pode receber sombras
+        painting.receiveShadow = true;
         scene.add(painting);
     });
 }
@@ -200,17 +294,17 @@ function addPainting() {
 function addLamp() {
     // Suporte do candeeiro
     const standGeometry = new THREE.CylinderGeometry(0.5, 0.5, 8, 32);
-    const standMaterial = new THREE.MeshBasicMaterial({ color: 0x808080 }); // Cinza
+    const standMaterial = new THREE.MeshBasicMaterial({ color: 0x808080 });
     const stand = new THREE.Mesh(standGeometry, standMaterial);
-    stand.position.set(0, 18, -10); // Posição ao lado da porta
+    stand.position.set(0, 18, -10);
     stand.castShadow = true;
     scene.add(stand);
 
-    // Lâmpada do candeeiro
+    // Lâmpada
     const bulbGeometry = new THREE.SphereGeometry(1, 32, 32);
-    const bulbMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFF00 }); // Amarelo
+    const bulbMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFF00 });
     const bulb = new THREE.Mesh(bulbGeometry, bulbMaterial);
-    bulb.position.set(0, 14, -10); // Posição ao lado da porta
+    bulb.position.set(0, 14, -10); 
     bulb.castShadow = true;
     scene.add(bulb);
 
@@ -300,7 +394,6 @@ async function loadKaren() {
     const gltfLoader = new GLTFLoader();
 
     womanGLTF = await gltfLoader.loadAsync('karen/female_cartoon_character/scene.gltf');
-    const hairGLTF = await gltfLoader.loadAsync('karen/female_karen_hair/scene.gltf');
 
     const karenMesh = womanGLTF.scene;
     karenMesh.scale.set(2, 2, 2);
@@ -329,12 +422,10 @@ function addKaren(posX) {
 
     karenMeshes.push(model1);
     scene.add(model1);
-    mixers.push(mixer1);
 }
 
 function spawnKarens() {
-    let randomX = Math.floor(Math.random() * 20) - 10;
-    addKaren(randomX);
+    let randomX;
     setInterval(() => {
         randomX = Math.floor(Math.random() * 20) - 10;
         addKaren(randomX);
@@ -378,6 +469,20 @@ function checkCollisions() {
             }
         });
     });
+    mabelMeshes.forEach((mabel, indexa) => {
+        projectileMeshes.forEach((projectile, indexb) => {
+            if (mabel.position.x >= projectile.position.x - 2 &&
+                mabel.position.x <= projectile.position.x + 2 &&
+                mabel.position.z >= projectile.position.z - 2 &&
+                mabel.position.z <= projectile.position.z + 2) {
+                scene.remove(mabel);
+                mabelMeshes.splice(indexa, 1);
+                scene.remove(projectile);
+                projectileMeshes.splice(indexb, 1);
+                loseLife();
+            }
+        });
+    });
 }
 
 function loseLife() {
@@ -385,21 +490,71 @@ function loseLife() {
     updateHUD();
     if (lives === 0) {
         alert(`Game Over! Final Score: ${score}`);
-        window.location.href = "index.html"; // Substitua "index.html" pela URL da sua página inicial
+        window.location.href = "index.html";
     }
 }
 
 function updateHUD() {
     scoreElement.innerText = score;
     
-    // Update lives with hearts
+    // Atualiza as vidas
     livesElement.innerHTML = '';
     for (let i = 0; i < lives; i++) {
         const heart = document.createElement('span');
         heart.className = 'heart';
         livesElement.appendChild(heart);
     }
-    // spawnInterval = Math.max(200, 2000 - score*10000);
-    // clearInterval(spawnKarenIntervalId);
-    // spawnKarens();
+}
+
+
+async function loadMabel() {
+    const gltfLoader = new GLTFLoader();
+
+    mabelGLTF = await gltfLoader.loadAsync('mabel/scene.gltf');
+
+    const mabelMesh = mabelGLTF.scene;
+    mabelMesh.scale.set(1, 1, 1);
+}
+
+function addMabel(posX) {
+    let model1 = SkeletonUtils.clone(mabelGLTF.scene);
+
+    let animations = {};
+    mabelGLTF.animations.forEach(animation => {
+        animations[animation.name] = animation;
+    });
+
+    const mixer1 = new THREE.AnimationMixer(model1);
+    const actualAnimation = animations["mixamorig_MabelAnimation"];
+    if (actualAnimation) {
+        mixer1.clipAction(actualAnimation).play();
+    } else {
+        console.error("A animação 'mixamorig_MabelAnimation' não foi encontrada.");
+    }
+
+    model1.position.x = posX;
+    model1.position.y = 0;
+    model1.position.z = -30;
+    model1.castShadow = true;
+
+    mabelMeshes.push(model1);
+    scene.add(model1);
+}
+
+function spawnMabels() {
+    let randomX;
+    setInterval(() => {
+        randomX = Math.floor(Math.random() * 20) - 10;
+        addMabel(randomX);
+    }, 5000);
+}
+
+function updateMabels() {
+    mabelMeshes.forEach((mabel, index) => {
+        mabel.position.z += 0.1;
+        if (mabel.position.z > 20) {
+            scene.remove(mabel);
+            mabelMeshes.splice(index, 1);
+        }
+    });
 }
