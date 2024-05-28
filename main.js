@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { GLTFLoader } from 'threejs/examples/jsm/loaders/GLTFLoader.js';
-import * as SkeletonUtils from 'threejs/examples/jsm/utils/SkeletonUtils.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils.js';
 
 let elThreejs = document.getElementById("threejs");
 let camera, scene, renderer;
@@ -15,13 +15,13 @@ let projectileMesh;
 let karenMeshes = [];
 let karenMesh;
 
-let mabelMeshes = [];
-let mabelMesh;
-let mabelGLTF;
+let dipperMeshes = [];
+let dipperMesh;
+let dipperGLTF;
 
 let womanGLTF;
 let mixers = [];
-let mixersMabel = [];
+let mixersDipper = [];
 let clock;
 
 let score = 0;
@@ -62,7 +62,7 @@ async function init() {
     elThreejs.appendChild(renderer.domElement);
 
     await loadKaren();
-    await loadMabel();
+    await loadDipper();
 
     addEdges();
     addDoor();
@@ -79,14 +79,14 @@ async function init() {
     animate();
 
     spawnKarens();
-    spawnMabels();
+    spawnDippers();
 }
 
 function animate() {
     movePlayer();
     updateProjectiles();
     updateKarens();
-    updateMabels();
+    updateDippers();
 
     checkCollisions();
 
@@ -309,8 +309,7 @@ function addLamp() {
     bulb.castShadow = true;
     scene.add(bulb);
 
-    // Luz do candeeiro
-    const pointLight = new THREE.PointLight(0xffffcf, 2, 3000);
+    const pointLight = new THREE.PointLight(0xffffcf, 2, 3000, 0);
     pointLight.position.set(0, 14, -10); // Mesma posição da lâmpada
     pointLight.castShadow = true;
     pointLight.shadow.mapSize.width = 512; // tamanho do mapa de sombras
@@ -319,7 +318,8 @@ function addLamp() {
     pointLight.shadow.camera.far = 500;
     scene.add(pointLight);
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.2); // Luz ambiente fraca
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // Luz ambiente fraca
     scene.add(ambientLight);
 }
 
@@ -345,7 +345,7 @@ function addPlane() {
         texture.repeat.set(4, 4);
 
         const geometry = new THREE.BoxGeometry(200, 0, 300);
-        const material = new THREE.MeshBasicMaterial({ map: texture, color: 0x333333 });
+        const material = new THREE.MeshBasicMaterial({ map: texture, color: 0X80674e});
         const plane = new THREE.Mesh(geometry, material);
         plane.position.set(0, -10, 0);
         plane.receiveShadow = true;
@@ -470,14 +470,14 @@ function checkCollisions() {
             }
         });
     });
-    mabelMeshes.forEach((mabel, indexa) => {
+    dipperMeshes.forEach((dipper, indexa) => {
         projectileMeshes.forEach((projectile, indexb) => {
-            if (mabel.position.x >= projectile.position.x - 2 &&
-                mabel.position.x <= projectile.position.x + 2 &&
-                mabel.position.z >= projectile.position.z - 2 &&
-                mabel.position.z <= projectile.position.z + 2) {
-                scene.remove(mabel);
-                mabelMeshes.splice(indexa, 1);
+            if (dipper.position.x >= projectile.position.x - 2 &&
+                dipper.position.x <= projectile.position.x + 2 &&
+                dipper.position.z >= projectile.position.z - 2 &&
+                dipper.position.z <= projectile.position.z + 2) {
+                scene.remove(dipper);
+                dipperMeshes.splice(indexa, 1);
                 scene.remove(projectile);
                 projectileMeshes.splice(indexb, 1);
                 loseLife();
@@ -508,29 +508,29 @@ function updateHUD() {
 }
 
 
-async function loadMabel() {
+async function loadDipper() {
     const gltfLoader = new GLTFLoader();
 
-    mabelGLTF = await gltfLoader.loadAsync('mabel/scene.gltf');
+    dipperGLTF = await gltfLoader.loadAsync('dipper/scene.gltf');
 
-    const mabelMesh = mabelGLTF.scene;
-    mabelMesh.scale.set(1, 1, 1);
+    const dipperMesh = dipperGLTF.scene;
+    dipperMesh.scale.set(1, 1, 1);
 }
 
-function addMabel(posX) {
-    let model1 = SkeletonUtils.clone(mabelGLTF.scene);
+function addDipper(posX) {
+    let model1 = SkeletonUtils.clone(dipperGLTF.scene);
 
     let animations = {};
-    mabelGLTF.animations.forEach(animation => {
+    dipperGLTF.animations.forEach(animation => {
         animations[animation.name] = animation;
     });
 
     const mixer1 = new THREE.AnimationMixer(model1);
-    const actualAnimation = animations["mixamorig_MabelAnimation"];
+    const actualAnimation = animations["mixamorig_DipperAnimation"];
     if (actualAnimation) {
         mixer1.clipAction(actualAnimation).play();
     } else {
-        console.error("A animação 'mixamorig_MabelAnimation' não foi encontrada.");
+        console.error("A animação 'mixamorig_DipperAnimation' não foi encontrada.");
     }
 
     model1.position.x = posX;
@@ -538,24 +538,24 @@ function addMabel(posX) {
     model1.position.z = -30;
     model1.castShadow = true;
 
-    mabelMeshes.push(model1);
+    dipperMeshes.push(model1);
     scene.add(model1);
 }
 
-function spawnMabels() {
+function spawnDippers() {
     let randomX;
     setInterval(() => {
         randomX = Math.floor(Math.random() * 20) - 10;
-        addMabel(randomX);
+        addDipper(randomX);
     }, 5000);
 }
 
-function updateMabels() {
-    mabelMeshes.forEach((mabel, index) => {
-        mabel.position.z += 0.1;
-        if (mabel.position.z > 20) {
-            scene.remove(mabel);
-            mabelMeshes.splice(index, 1);
+function updateDippers() {
+    dipperMeshes.forEach((dipper, index) => {
+        dipper.position.z += 0.1;
+        if (dipper.position.z > 20) {
+            scene.remove(dipper);
+            dipperMeshes.splice(index, 1);
         }
     });
 }
