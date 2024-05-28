@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { GLTFLoader } from './node_modules/three/examples/jsm/loaders/GLTFLoader.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 let elThreejs = document.getElementById("threejs");
 let camera, scene, renderer, playerMesh, rotationSpeed = 0.01, karenMesh;
