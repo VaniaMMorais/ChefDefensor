@@ -150,21 +150,22 @@ function addTableAndChairs() {
     const chairSeatGeometry = new THREE.BoxGeometry(2, 0.5, 2); // Geometria do assento
     const chairLegGeometry = new THREE.CylinderGeometry(0.125, 0.125, 2, 32); // Geometria das pernas da cadeira
     const chairBackGeometry = new THREE.BoxGeometry(2, 2, 0.5); // Geometria do encosto
+    const chairMaterial = new THREE.MeshPhongMaterial({ color: 0xB58868}); // Cor das cadeiras
 
     // Assento da primeira cadeira
-    const chair1Seat = new THREE.Mesh(chairSeatGeometry, tableMaterial);
-    chair1Seat.position.set(-35, 1.25, -12.5); // Posição do assento
+    const chair1Seat = new THREE.Mesh(chairSeatGeometry, chairMaterial);
+    chair1Seat.position.set(-35, 1.25, -10); // Posição do assento
     chair1Seat.castShadow = true;
     chair1Seat.receiveShadow = true;
     scene.add(chair1Seat);
 
     // Pernas da primeira cadeira
     const chair1LegPositions = [
-        [-36, 0, -13.5], [-34, 0, -13.5],
-        [-36, 0, -11.5], [-34, 0, -11.5]
+        [-36, 0, -9], [-34, 0, -9],
+        [-36, 0, -11], [-34, 0, -10.55]
     ];
     chair1LegPositions.forEach(pos => {
-        const leg = new THREE.Mesh(chairLegGeometry, tableMaterial);
+        const leg = new THREE.Mesh(chairLegGeometry, chairMaterial);
         leg.position.set(pos[0], pos[1], pos[2]);
         leg.castShadow = true;
         leg.receiveShadow = true;
@@ -172,26 +173,26 @@ function addTableAndChairs() {
     });
 
     // Encosto da primeira cadeira
-    const chair1Back = new THREE.Mesh(chairBackGeometry, tableMaterial);
-    chair1Back.position.set(-35, 2.5, -11.25); // Posição do encosto
+    const chair1Back = new THREE.Mesh(chairBackGeometry, chairMaterial);
+    chair1Back.position.set(-35, 2.5, -9); // Posição do encosto
     chair1Back.castShadow = true;
     chair1Back.receiveShadow = true;
     scene.add(chair1Back);
 
     // Assento da segunda cadeira
-    const chair2Seat = new THREE.Mesh(chairSeatGeometry, tableMaterial);
-    chair2Seat.position.set(-25, 1.25, -12.5); // Posição do assento
+    const chair2Seat = new THREE.Mesh(chairSeatGeometry, chairMaterial);
+    chair2Seat.position.set(-25, 1.25, -10); // Posição do assento
     chair2Seat.castShadow = true;
     chair2Seat.receiveShadow = true;
     scene.add(chair2Seat);
 
     // Pernas da segunda cadeira
     const chair2LegPositions = [
-        [-26, 0, -13.5], [-24, 0, -13.5],
-        [-26, 0, -11.5], [-24, 0, -11.5]
+        [-26, 0, -9], [-24, 0, -9],
+        [-26, 0, -11], [-24, 0, -10.5]
     ];
     chair2LegPositions.forEach(pos => {
-        const leg = new THREE.Mesh(chairLegGeometry, tableMaterial);
+        const leg = new THREE.Mesh(chairLegGeometry, chairMaterial);
         leg.position.set(pos[0], pos[1], pos[2]);
         leg.castShadow = true;
         leg.receiveShadow = true;
@@ -199,8 +200,8 @@ function addTableAndChairs() {
     });
 
     // Encosto da segunda cadeira
-    const chair2Back = new THREE.Mesh(chairBackGeometry, tableMaterial);
-    chair2Back.position.set(-25, 2.5, -11.25); // Posição do encosto
+    const chair2Back = new THREE.Mesh(chairBackGeometry, chairMaterial);
+    chair2Back.position.set(-24, 2.5, -9.5); // Posição do encosto
     chair2Back.castShadow = true;
     chair2Back.receiveShadow = true;
     scene.add(chair2Back);

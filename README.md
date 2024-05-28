@@ -13,7 +13,6 @@ Se as alterações feitas não forem notáveis, é só mudar a porta
 
 
 # Notes
-    - Endireitar a mesa
     - Dar deploy
     - Fazer apresentação
     
