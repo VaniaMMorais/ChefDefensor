@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { GLTFLoader } from './node_modules/three/examples/jsm/loaders/GLTFLoader.js';
+import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.140.0/examples/jsm/loaders/GLTFLoader.js';
 import * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils.js';
 
 let elThreejs = document.getElementById("threejs");
