@@ -1,17 +1,19 @@
 {
-  "name": "chefdefensor",
-  "version": "1.0.0",
+  "dependencies": {
+    "cannon-es": "^0.20.0",
+    "cannon-es-debugger": "^1.0.0",
+    "three": "^0.151.3",
+    "three-js-csg": "^72.0.0"
+  },
+  "devDependencies": {
+    "@types/dat.gui": "^0.7.10",
+    "dat.gui": "^0.7.9",
+    "vite": "^4.2.2"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview",
-    "deploy": "gh-pages -d dist"
-  },
-  "dependencies": {
-    "three": "^0.140.0"
-  },
-  "devDependencies": {
-    "vite": "^2.0.0",
-    "gh-pages": "^3.2.3"
+    "deploy": "npm run build && gh-pages -d dist"
   }
 }
