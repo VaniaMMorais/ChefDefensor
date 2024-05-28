@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { GLTFLoader } from './threejs/examples/jsm/loaders/GLTFLoader.js';
-import * as SkeletonUtils from '../threejs/examples/jsm/utils/SkeletonUtils.js';
+import { GLTFLoader } from 'threejs/examples/jsm/loaders/GLTFLoader.js';
+import * as SkeletonUtils from 'threejs/examples/jsm/utils/SkeletonUtils.js';
 
 let elThreejs = document.getElementById("threejs");
 let camera, scene, renderer;
