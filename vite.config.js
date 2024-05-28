@@ -1,10 +1,8 @@
 import { defineConfig } from 'vite';
-import path from 'path';
 
 export default defineConfig({
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, 'src')
-    }
+  base: '/ChefDefensor/',  // Substitua 'nome-do-repositorio' pelo nome do seu repositório no GitHub
+  build: {
+    outDir: 'dist'
   }
 });
