@@ -14,6 +14,7 @@ Se as alterações feitas não forem notáveis, é só mudar a porta
 
 # Notes
     - Dar deploy
+        - three.module.js:1 Failed to load resource: the server responded with a status of 404 ()
     - Fazer apresentação
     
 
